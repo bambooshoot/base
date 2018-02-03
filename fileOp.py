@@ -2,7 +2,9 @@ import os
 
 def MkDir(dirList,dirPath):
     for curDir in dirList:
-        os.makedirs("%s/%s"%(dirPath,curDir))
+    	dirName="%s/%s"%(dirPath,curDir)
+    	if not os.path.isdir(dirName):
+        	os.makedirs(dirName)
 
 def IsEmptyDir(dirPath):
     return len(os.listdir(dirPath)) == 0
