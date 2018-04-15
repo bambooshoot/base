@@ -11,3 +11,7 @@ def IsEmptyDir(dirPath):
 
 def DeleteDir(dirPath):
     os.rmdir(dirPath)
+
+def DeleteFiles(fileFilter):
+    for curFile in glob.glob(fileFilter):
+        os.remove(curFile)
