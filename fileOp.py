@@ -1,4 +1,4 @@
-import os
+import os,glob,shutil
 
 def MkDir(dirList,dirPath):
     for curDir in dirList:
@@ -15,3 +15,12 @@ def DeleteDir(dirPath):
 def DeleteFiles(fileFilter):
     for curFile in glob.glob(fileFilter):
         os.remove(curFile)
+
+def MakeSureDirExists(folder):
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+
+def copyFile(srcFile,tarFile):
+    if os.path.isfile(srcFile):
+        print "copy %s %s"%(srcFile,tarFile)
+        shutil.copy(srcFile,tarFile)
