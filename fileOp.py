@@ -23,4 +23,18 @@ def MakeSureDirExists(folder):
 def copyFile(srcFile,tarFile):
     if os.path.isfile(srcFile):
         print "copy %s %s"%(srcFile,tarFile)
+        srcPathAndName = os.path.split(srcFile)
+        if os.path.realpath(srcPathAndName[0]) == os.path.realpath(tarFile):
+            print "WARNNING: %s can not be replaced by itself.\n"%srcFile
+            return
+
+        # shutil.copy(srcFile,tarFile)
+        if(os.path.isdir(tarFile)):
+            tarFile = os.path.join(tarFile,srcPathAndName[1])
+
+        if os.path.isfile(tarFile):
+            print "delete %s"%tarFile
+            os.remove(tarFile)
+
+        # shutil.copyfile(srcFile,tarFile)
         shutil.copy(srcFile,tarFile)
