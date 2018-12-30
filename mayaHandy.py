@@ -1,5 +1,7 @@
 import maya.cmds as cmds
 import pymel.core as pm
+import re
+import os.path
 
 def BatchNodeOpByTypeAndAttrName(method):
     def func(*argv):
@@ -14,8 +16,30 @@ def BatchNodeOpByTypeAndAttrName(method):
 
 
 @BatchNodeOpByTypeAndAttrName
-def BatchSetAttrFloat(nodeTypeStr,attrName,value,curSel):
+def BatchSetAttrNumeric(nodeTypeStr,attrName,value,curSel):
     cmds.setAttr("%s.%s"%(curSel,attrName),value)
+
+@BatchNodeOpByTypeAndAttrName
+def BatchSetAttrCurveGraph(nodeTypeStr,attrName,value,curSel):
+    cmds.setAttr("%s.%s"%(curSel,attrName),value[0],value[1],value[2])
+
+@BatchNodeOpByTypeAndAttrName
+def BatchSetAttrStr(nodeTypeStr,attrName,value,curSel):
+    value=re.sub("<thisNodeName>",curSel,value)
+    if re.search("^[a-zA-Z]:",value):
+        value=re.sub("(?<!^[a-zA-Z]{1}):","_COLON_",value)
+    cmds.setAttr("%s.%s"%(curSel,attrName),value,type="string")
+
+@BatchNodeOpByTypeAndAttrName
+def BatchSetAttrExpr(nodeTypeStr,attrName,value,curSel):
+    attr=pm.Attribute("%s.%s"%(curSel,attrName))
+    conList=attr.connections(skipConversionNodes=True)
+    if conList:
+        for curNode in conList:
+            pm.delete(curNode)
+
+    value=re.sub("<thisNodeName>",curSel,value)
+    cmds.expression(s=value)
 
 @BatchNodeOpByTypeAndAttrName
 def BatchConnectAttr(nodeTypeStr,attrName,outputNodeAttr,curSel):
