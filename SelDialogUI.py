@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file './ui\SelDialog.ui'
 #
-# Created: Fri Sep 14 11:27:41 2018
+# Created: Wed Dec 12 19:23:50 2018
 #      by: pyside2-uic  running on PySide2 2.0.0~alpha0
 #
 # WARNING! All changes made in this file will be lost!
