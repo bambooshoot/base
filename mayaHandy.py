@@ -2,6 +2,7 @@ import maya.cmds as cmds
 import pymel.core as pm
 import re
 import os.path
+import collections
 
 def BatchNodeOpByTypeAndAttrName(method):
     def func(*argv):
@@ -86,10 +87,9 @@ def getRenderData():
     # Dict { <Render Attribute>:
     #        <Value>}
     dic = collections.OrderedDict()
-    dic['renderer'] = _get.getNiceName(cmds.getAttr('defaultRenderGlobals.currentRenderer'))
+    # dic['renderer'] = _get.getNiceName(cmds.getAttr('defaultRenderGlobals.currentRenderer'))
     # Arnold
     if cmds.getAttr('defaultRenderGlobals.currentRenderer') == 'arnold':
-        getMtoa()
         dic['aa'] = cmds.getAttr('defaultArnoldRenderOptions.AASamples')
         dic['diffuse'] = cmds.getAttr('defaultArnoldRenderOptions.GIDiffuseSamples')
         dic['glossy'] = cmds.getAttr('defaultArnoldRenderOptions.GIGlossySamples')

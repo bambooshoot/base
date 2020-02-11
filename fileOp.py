@@ -1,12 +1,24 @@
-import os,glob,shutil,time,fnmatch
-
+import os,glob,shutil,time,fnmatch,hashlib
 import ctypes
-import os
 import platform
 import sys
 
+def getOsFileHashKey_(osFile):
+    string = ''
+    if os.path.isfile(osFile):
+        with open(osFile, 'rb') as f:
+            md5Obj = hashlib.md5()
+            while True:
+                d = f.read(128)
+                if not d:
+                    break
+                md5Obj.update(d)
+            hashValue = md5Obj.hexdigest()
+            string = str(hashValue).upper()
+    return string
+
 def get_free_space_mb(folder):
-    """ Return folder/drive free space (in bytes)
+    """ Return folder/drive free space (in Giga byte)
     """
     if platform.system() == 'Windows':
         free_bytes = ctypes.c_ulonglong(0)
@@ -34,6 +46,9 @@ def DeleteFiles(fileFilter):
         print "Remove file: %s"%curFile
         os.remove(curFile)
 
+def DeleteDirTree(folder):
+    os.system("rd /s /q %s"%folder)
+
 def MakeSureDirExists(folder):
     if not os.path.isdir(folder):
         print "Make folder: %s"%folder
@@ -46,21 +61,35 @@ def FileTime(fileName):
     statInfo = os.stat(fileName)
     return time.localtime(statInfo.st_mtime)
 
+def IsDiffFile(fileName0,fileName1):
+    return FileTime(fileName0) != FileTime(fileName1)
+    # return getOsFileHashKey_(fileName0) != getOsFileHashKey_(fileName1)
+
 def ListFile(path,symbolname):
     resultList=[]
+    extName = None
+    if len(symbolname) > 3:
+        extName = symbolname[-3:]
+    else:
+        extName = symbolname
+
     if os.path.isdir(path):
         fileList=os.listdir(path)
         
         for item in fileList:
             if fnmatch.fnmatch(item,symbolname):
-                resultList.append(item)
+                if len(item) > 3 and item[-3:] == extName:
+                    resultList.append(item)
         
     return resultList
 
 def copyLatestFile(srcFile,tarFile):
     if not os.path.isfile(tarFile):
         return copyFile(srcFile,tarFile)
-    elif FileTime(tarFile) < FileTime(srcFile):
+    elif not os.path.isfile(srcFile):
+        print "%s does not exist."%srcFile
+        return 0
+    elif IsDiffFile(tarFile, srcFile):
         return copyFile(srcFile,tarFile)
     else:
         print "%s is the just latest file."%tarFile
@@ -70,11 +99,15 @@ def copyFile(srcFile,tarFile):
     if srcFile == tarFile:
         print "WARNNING: copyFile srcFile %s tarFile %s are same."%(srcFile,tarFile)
         return 0
+
+    tarFilePath,tarFileName = os.path.split(tarFile)
+    if not (isinstance(tarFilePath, unicode) or isinstance(tarFilePath, str)):
+        print "WARNNING: tarFilePath is not a valid string path ",type(tarFilePath),tarFilePath
+        return 0
         
     if not os.path.isfile(srcFile):
         print "%s does not exist!"%srcFile
     else:
-        tarFilePath,tarFileName = os.path.split(tarFile)
         if not os.path.isdir(tarFilePath):
             print "copyFile create target file path %s."%tarFilePath
             MakeSureDirExists(tarFilePath)
